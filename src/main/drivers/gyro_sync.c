@@ -10,27 +10,18 @@
 
 #include "platform.h"
 
-#include "drivers/sensor.h"
-#include "drivers/accgyro.h"
-#include "drivers/gyro_sync.h"
+#include "sensor.h"
+#include "accgyro.h"
+#include "gyro_sync.h"
 
 static uint8_t mpuDividerDrops;
 
-bool gyroSyncCheckUpdate(const gyro_t *gyro)
+bool gyroSyncCheckUpdate(gyroDev_t *gyro)
 {
     if (!gyro->intStatus)
         return false;
-    return gyro->intStatus();
+    return gyro->intStatus(gyro);
 }
-
-#define GYRO_LPF_256HZ      0
-#define GYRO_LPF_188HZ      1
-#define GYRO_LPF_98HZ       2
-#define GYRO_LPF_42HZ       3
-#define GYRO_LPF_20HZ       4
-#define GYRO_LPF_10HZ       5
-#define GYRO_LPF_5HZ        6
-#define GYRO_LPF_NONE       7
 
 uint32_t gyroSetSampleRate(uint8_t lpf, uint8_t gyroSyncDenominator)
 {

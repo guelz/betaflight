@@ -124,32 +124,29 @@ bool mpu6000ReadRegister(uint8_t reg, uint8_t length, uint8_t *data)
     return true;
 }
 
-void mpu6000SpiGyroInit(uint8_t lpf)
+void mpu6000SpiGyroInit(gyroDev_t *gyro)
 {
-    mpuIntExtiInit();
+    mpuGyroInit(gyro);
 
     mpu6000AccAndGyroInit();
 
     spiSetDivisor(MPU6000_SPI_INSTANCE, SPI_CLOCK_INITIALIZATON);
 
     // Accel and Gyro DLPF Setting
-    mpu6000WriteRegister(MPU6000_CONFIG, lpf);
+    mpu6000WriteRegister(MPU6000_CONFIG, gyro->lpf);
     delayMicroseconds(1);
 
     spiSetDivisor(MPU6000_SPI_INSTANCE, SPI_CLOCK_FAST);  // 18 MHz SPI clock
 
-    int16_t data[3];
-    mpuGyroRead(data);
+    mpuGyroRead(gyro);
 
-    if (((int8_t)data[1]) == -1 && ((int8_t)data[0]) == -1) {
+    if (((int8_t)gyro->gyroADCRaw[1]) == -1 && ((int8_t)gyro->gyroADCRaw[0]) == -1) {
         failureMode(FAILURE_GYRO_INIT_FAILED);
     }
 }
 
-void mpu6000SpiAccInit(acc_t *acc)
+void mpu6000SpiAccInit(accDev_t *acc)
 {
-    mpuIntExtiInit();
-
     acc->acc_1G = 512 * 4;
 }
 
@@ -161,7 +158,7 @@ bool mpu6000SpiDetect(void)
 #ifdef MPU6000_CS_PIN
     mpuSpi6000CsPin = IOGetByTag(IO_TAG(MPU6000_CS_PIN));
 #endif
-    IOInit(mpuSpi6000CsPin, OWNER_MPU, RESOURCE_SPI_CS, 0);
+    IOInit(mpuSpi6000CsPin, OWNER_MPU_CS, 0);
     IOConfigGPIO(mpuSpi6000CsPin, SPI_IO_CS_CFG);
 
     spiSetDivisor(MPU6000_SPI_INSTANCE, SPI_CLOCK_INITIALIZATON);
@@ -179,7 +176,6 @@ bool mpu6000SpiDetect(void)
             return false;
         }
     } while (attemptsRemaining--);
-
 
     mpu6000ReadRegister(MPU_RA_PRODUCT_ID, 1, &in);
 
@@ -205,8 +201,8 @@ bool mpu6000SpiDetect(void)
     return false;
 }
 
-static void mpu6000AccAndGyroInit(void) {
-
+static void mpu6000AccAndGyroInit(void)
+{
     if (mpuSpi6000InitDone) {
         return;
     }
@@ -244,7 +240,6 @@ static void mpu6000AccAndGyroInit(void) {
     mpu6000WriteRegister(MPU_RA_ACCEL_CONFIG, INV_FSR_16G << 3);
     delayMicroseconds(15);
 
-
     mpu6000WriteRegister(MPU_RA_INT_PIN_CFG, 0 << 7 | 0 << 6 | 0 << 5 | 1 << 4 | 0 << 3 | 0 << 2 | 0 << 1 | 0 << 0);  // INT_ANYRD_2CLEAR
     delayMicroseconds(15);
 
@@ -259,7 +254,7 @@ static void mpu6000AccAndGyroInit(void) {
     mpuSpi6000InitDone = true;
 }
 
-bool mpu6000SpiAccDetect(acc_t *acc)
+bool mpu6000SpiAccDetect(accDev_t *acc)
 {
     if (mpuDetectionResult.sensor != MPU_60x0_SPI) {
         return false;
@@ -271,7 +266,7 @@ bool mpu6000SpiAccDetect(acc_t *acc)
     return true;
 }
 
-bool mpu6000SpiGyroDetect(gyro_t *gyro)
+bool mpu6000SpiGyroDetect(gyroDev_t *gyro)
 {
     if (mpuDetectionResult.sensor != MPU_60x0_SPI) {
         return false;
@@ -279,7 +274,7 @@ bool mpu6000SpiGyroDetect(gyro_t *gyro)
 
     gyro->init = mpu6000SpiGyroInit;
     gyro->read = mpuGyroRead;
-    gyro->intStatus = checkMPUDataReady;
+    gyro->intStatus = mpuCheckDataReady;
     // 16.4 dps/lsb scalefactor
     gyro->scale = 1.0f / 16.4f;
 

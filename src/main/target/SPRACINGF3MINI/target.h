@@ -51,15 +51,15 @@
 #define BARO
 #define USE_BARO_BMP280
 
-#define MAG
-#define USE_MPU9250_MAG // Enables bypass configuration
-#define USE_MAG_AK8975
-#define USE_MAG_HMC5883 // External
-#define MAG_AK8975_ALIGN        CW90_DEG_FLIP
+//#define MAG
+//#define USE_MPU9250_MAG // Enables bypass configuration
+//#define USE_MAG_AK8975
+//#define USE_MAG_HMC5883 // External
+//#define MAG_AK8975_ALIGN        CW90_DEG_FLIP
 
-#define SONAR
-#define SONAR_ECHO_PIN          PB1
-#define SONAR_TRIGGER_PIN       PB0
+//#define SONAR
+//#define SONAR_ECHO_PIN          PB1
+//#define SONAR_TRIGGER_PIN       PB0
 
 #define USB_IO
 #define USB_CABLE_DETECTION
@@ -73,6 +73,9 @@
 #define USE_SOFTSERIAL1
 #define SERIAL_PORT_COUNT       5
 
+#define USE_ESCSERIAL
+#define ESCSERIAL_TIMER_TX_HARDWARE 0 // PWM 1
+
 #define UART1_TX_PIN            PA9
 #define UART1_RX_PIN            PA10
 
@@ -85,6 +88,7 @@
 #define SOFTSERIAL_1_TIMER TIM2
 #define SOFTSERIAL_1_TIMER_RX_HARDWARE 9 // PA0 / PAD3
 #define SOFTSERIAL_1_TIMER_TX_HARDWARE 10 // PA1 / PAD4
+#define SONAR_SOFTSERIAL1_EXCLUSIVE
 
 #define USE_I2C
 #define I2C_DEVICE              (I2CDEV_1) // PB6/SCL, PB7/SDA
@@ -126,25 +130,8 @@
 #define RSSI_ADC_PIN                PB2
 
 #define LED_STRIP
-#define WS2811_PIN                      PA8
-#define WS2811_TIMER                    TIM1
-#define WS2811_DMA_CHANNEL              DMA1_Channel2
-#define WS2811_IRQ                      DMA1_Channel2_IRQn
-#define WS2811_DMA_TC_FLAG              DMA1_FLAG_TC2
-#define WS2811_DMA_HANDLER_IDENTIFER    DMA1_CH2_HANDLER
 
 #define TRANSPONDER
-#define TRANSPONDER_GPIO                     GPIOA
-#define TRANSPONDER_GPIO_AHB_PERIPHERAL      RCC_AHBPeriph_GPIOA
-#define TRANSPONDER_GPIO_AF                  GPIO_AF_6
-#define TRANSPONDER_PIN                      GPIO_Pin_8
-#define TRANSPONDER_PIN_SOURCE               GPIO_PinSource8
-#define TRANSPONDER_TIMER                    TIM1
-#define TRANSPONDER_TIMER_APB2_PERIPHERAL    RCC_APB2Periph_TIM1
-#define TRANSPONDER_DMA_CHANNEL              DMA1_Channel2
-#define TRANSPONDER_IRQ                      DMA1_Channel2_IRQn
-#define TRANSPONDER_DMA_TC_FLAG              DMA1_FLAG_TC2
-#define TRANSPONDER_DMA_HANDLER_IDENTIFER    DMA1_CH2_HANDLER
 
 #define REDUCE_TRANSPONDER_CURRENT_DRAW_WHEN_USB_CABLE_PRESENT
 
@@ -154,10 +141,8 @@
 #define DEFAULT_FEATURES        FEATURE_BLACKBOX
 
 #define BUTTONS
-#define BUTTON_A_PORT           GPIOB
-#define BUTTON_A_PIN            Pin_1
-#define BUTTON_B_PORT           GPIOB
-#define BUTTON_B_PIN            Pin_0
+#define BUTTON_A_PIN            PB1
+#define BUTTON_B_PIN            PB0
 
 #define SPEKTRUM_BIND
 // USART3,

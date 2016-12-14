@@ -17,6 +17,10 @@
 
 #pragma once
 
+#include "common/color.h"
+#include "common/time.h"
+#include "drivers/io_types.h"
+
 #define LED_MAX_STRIP_LENGTH           32
 #define LED_CONFIGURABLE_COLOR_COUNT   16
 #define LED_MODE_COUNT                  6
@@ -73,7 +77,8 @@ typedef enum {
     LED_MODE_ANGLE,
     LED_MODE_MAG,
     LED_MODE_BARO,
-    LED_SPECIAL
+    LED_SPECIAL,
+    LED_AUX_CHANNEL
 } ledModeIndex_e;
 
 typedef enum {
@@ -103,7 +108,7 @@ typedef enum {
     LED_FUNCTION_BATTERY,
     LED_FUNCTION_RSSI,
     LED_FUNCTION_GPS,
-    LED_FUNCTION_THRUST_RING,
+    LED_FUNCTION_THRUST_RING
 } ledBaseFunctionId_e;
 
 typedef enum {
@@ -112,7 +117,7 @@ typedef enum {
     LED_OVERLAY_BLINK,
     LED_OVERLAY_LANDING_FLASH,
     LED_OVERLAY_INDICATOR,
-    LED_OVERLAY_WARNING,
+    LED_OVERLAY_WARNING
 } ledOverlayId_e;
 
 typedef struct modeColorIndexes_s {
@@ -132,6 +137,15 @@ typedef struct ledCounts_s {
     uint8_t ringSeqLen;
 } ledCounts_t;
 
+typedef struct ledStripConfig_s {
+    ledConfig_t ledConfigs[LED_MAX_STRIP_LENGTH];
+    hsvColor_t colors[LED_CONFIGURABLE_COLOR_COUNT];
+    modeColorIndexes_t modeColors[LED_MODE_COUNT];
+    specialColorIndexes_t specialColors;
+    uint8_t ledstrip_visual_beeper; // suppress LEDLOW mode if beeper is on
+    uint8_t ledstrip_aux_channel;
+    ioTag_t ioTag;
+} ledStripConfig_t;
 
 ledConfig_t *ledConfigs;
 hsvColor_t *colors;
@@ -163,14 +177,11 @@ bool parseLedStripConfig(int ledIndex, const char *config);
 void generateLedConfig(ledConfig_t *ledConfig, char *ledConfigBuffer, size_t bufferSize);
 void reevaluateLedConfig(void);
 
-void ledStripInit(ledConfig_t *ledConfigsToUse, hsvColor_t *colorsToUse, modeColorIndexes_t *modeColorsToUse, specialColorIndexes_t *specialColorsToUse);
+void ledStripInit(ledStripConfig_t *ledStripConfig);
 void ledStripEnable(void);
-void updateLedStrip(void);
+void ledStripUpdate(timeUs_t currentTimeUs);
 
 bool setModeColor(ledModeIndex_e modeIndex, int modeColorIndex, int colorIndex);
-
-extern uint16_t rssi; // FIXME dependency on mw.c
-
 
 void applyDefaultLedStripConfig(ledConfig_t *ledConfig);
 void applyDefaultColors(hsvColor_t *colors);
